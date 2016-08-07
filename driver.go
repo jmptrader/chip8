@@ -15,4 +15,3 @@ func Run() {
 
     runOpcode(context)
 }
-

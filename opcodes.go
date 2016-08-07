@@ -14,7 +14,7 @@ func nop(context *Context) {
 
 // 0xxx opcodes
 func ops0(context *Context) {
-    opcodes0[context.opcode & 0xF](context)
+    opcodes0[context.opcode & 0x8 >> 3](context)
 }
 
 // 00E0 - CLS
@@ -26,7 +26,8 @@ func cls(context *Context) {
 // 00EE - RET
 // Return from a subroutine
 func ret(context *Context) {
-
+    context.cpu.pc = context.stack[context.cpu.sp]
+    context.cpu.sp--
 }
 
 // 1nnn - JP nibble
@@ -100,30 +101,40 @@ func ops8(context *Context) {
     context.cpu.pc++
 }
 
+// 8xy0 - MV Vx, Vy
+// Set Vx = Vy
 func mv(context *Context) {
     x := context.opcode & 0x0F00 >> 8
     y := context.opcode & 0x00F0 >> 4
     context.cpu.v[x] = context.cpu.v[y]
 }
 
+// 8xy1 - OR Vx, Vy
+// Set Vx = Vx OR Vy
 func or(context *Context) {
     x := context.opcode & 0x0F00 >> 8
     y := context.opcode & 0x00F0 >> 4
     context.cpu.v[x] = context.cpu.v[x] | context.cpu.v[y]
 }
 
+// 8xy2 - AND Vx, Vy
+// Set Vx = Vx AND Vy
 func and(context *Context) {
     x := context.opcode & 0x0F00 >> 8
     y := context.opcode & 0x00F0 >> 4
     context.cpu.v[x] = context.cpu.v[x] & context.cpu.v[y]
 }
 
+// 8xy3 - XOR Vx, Vy
+// Set Vx = Vx XOR Vy.
 func xor(context *Context) {
     x := context.opcode & 0x0F00 >> 8
     y := context.opcode & 0x00F0 >> 4
     context.cpu.v[x] = context.cpu.v[x] ^ context.cpu.v[y]
 }
 
+// 8xy4 - ADD Vx, Vy
+// Set Vx = Vx + Vy, set VF = carry
 func add(context *Context) {
     x := context.opcode & 0x0F00 >> 8
     y := context.opcode & 0x00F0 >> 4
@@ -136,6 +147,8 @@ func add(context *Context) {
     context.cpu.v[x] = byte(sum & 0xFF)
 }
 
+// 8xy5 - SUB Vx, Vy
+// Set Vx = Vx - Vy, set VF = NOT borrow
 func sub(context *Context) {
     x := context.opcode & 0x0F00 >> 8
     y := context.opcode & 0x00F0 >> 4
@@ -147,6 +160,8 @@ func sub(context *Context) {
     context.cpu.v[x] = context.cpu.v[x] - context.cpu.v[y]
 }
 
+// 8xy6 - SHR Vx {, Vy}
+// Set Vx = Vx SHR 1
 func shr(context *Context) {
     x := context.opcode & 0x0F00 >> 8
     if context.cpu.v[x] & 0x1 == 0x1 {
@@ -157,6 +172,8 @@ func shr(context *Context) {
     context.cpu.v[x] /= 2
 }
 
+// 8xy7 - SUBN Vx, Vy
+// Set Vx = Vy - Vx, set VF = NOT borrow
 func subn(context *Context) {
     x := context.opcode & 0x0F00 >> 8
     y := context.opcode & 0x00F0 >> 4
@@ -234,6 +251,10 @@ func sknp(context *Context) {
     // TODO
 }
 
+func opsf(context *Context) {
+    // TODO
+}
+
 // Fx07 - MV Vx, DT
 // Set Vx = delay timer value
 func mvfd(context *Context) {
@@ -299,10 +320,9 @@ func ld(context *Context) {
 }
 
 var opcodes = [17]Opcode { ops0, jp, call, seb, sneb, se, ldb, addb, ops8,
-                           sne, nop, nop, nop, nop, nop, nop, nop }
+                           sne, ldn, jpn, rnd, drw, skp, sknp, nop }
 
-var opcodes0 = [15]Opcode { cls, nop, nop, nop, nop, nop, nop, nop, nop, nop,
-                            nop, nop, nop, ret }
+var opcodes0 = [2]Opcode { cls, ret }
 
 var opcodes8 = [16]Opcode { mv, or, and, xor, add, sub, shr,
                             subn, shl, nop, nop, nop, nop, shl }

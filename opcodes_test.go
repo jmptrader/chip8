@@ -5,6 +5,19 @@ import (
     "testing"
 )
 
+func TestRet(t *testing.T) {
+    assert := assert.New(t)
+    context := newContext(newCPU())
+
+    context.opcode = 0x00EE
+    context.cpu.sp = 1
+    context.stack[context.cpu.sp] = 0x321
+
+    runOpcode(context)
+    assert.Equal(uint16(0x321), context.cpu.pc)
+    assert.Equal(byte(0), context.cpu.sp)
+}
+
 func TestJp(t *testing.T) {
     assert := assert.New(t)
     context := newContext(newCPU())
@@ -12,7 +25,7 @@ func TestJp(t *testing.T) {
     context.opcode = 0x1321
 
     runOpcode(context)
-    assert.Equal(context.cpu.pc, uint16(0x321))
+    assert.Equal(uint16(0x321), context.cpu.pc)
 }
 
 func TestCall(t *testing.T) {
@@ -24,9 +37,9 @@ func TestCall(t *testing.T) {
     pc := context.cpu.pc
 
     runOpcode(context)
-    assert.Equal(context.cpu.pc, uint16(0x321))
-    assert.Equal(context.cpu.sp, byte(4))
-    assert.Equal(context.stack[context.cpu.sp], pc)
+    assert.Equal(uint16(0x321), context.cpu.pc)
+    assert.Equal(byte(4), context.cpu.sp)
+    assert.Equal(pc, context.stack[context.cpu.sp])
 }
 
 func TestSebSkip(t *testing.T) {
