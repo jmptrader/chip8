@@ -14,7 +14,7 @@ func nop(context *Context) {
 
 // 0xxx opcodes
 func ops0(context *Context) {
-    opcodes0[context.opcode & 0xF]
+    opcodes0[context.opcode & 0xF](context)
 }
 
 // 00E0 - CLS
@@ -80,7 +80,7 @@ func se(context *Context) {
 // Set Vx = kk
 func ldb(context *Context) {
     x := context.opcode & 0x0F00 >> 8
-    b := context.opcode & 0x00FF
+    b := byte(context.opcode & 0x00FF)
     context.cpu.v[x] = b
     context.cpu.pc++
 }
@@ -89,7 +89,7 @@ func ldb(context *Context) {
 // Set Vx = Vx + kk
 func addb(context *Context) {
     x := context.opcode & 0x0F00 >> 8
-    b := context.opcode & 0x00FF
+    b := byte(context.opcode & 0x00FF)
     context.cpu.v[x] += b
     context.cpu.pc++
 }
@@ -130,6 +130,8 @@ func add(context *Context) {
     sum := uint16(context.cpu.v[x]) + uint16(context.cpu.v[y])
     if sum > 255 {
         context.cpu.v[0xF] = 1
+    } else {
+        context.cpu.v[0xF] = 0
     }
     context.cpu.v[x] = byte(sum & 0xFF)
 }
@@ -170,7 +172,7 @@ func subn(context *Context) {
 // Set Vx = Vx SHL 1
 func shl(context *Context) {
     x := context.opcode & 0x0F00 >> 8
-    if context.cpu.v[x] & 0x8000 >> 12 == 0x1 {
+    if context.cpu.v[x] & 0x8 == 0x8 {
         context.cpu.v[0xF] = 1
     } else {
         context.cpu.v[0xF] = 0
@@ -201,14 +203,14 @@ func ldn(context *Context) {
 // Jump to location V0 + nnn
 func jpn(context *Context) {
     n := context.opcode & 0x0FFF
-    context.cpu.pc = context.cpu.v[0] + n
+    context.cpu.pc = uint16(context.cpu.v[0]) + n
 }
 
 // Cxkk - RND Vx, byte
 // Set Vx = random byte AND kk
 func rnd(context *Context) {
     x := context.opcode & 0x0F00 >> 8
-    b := context.opcode & 0xFF
+    b := byte(context.opcode & 0xFF)
     context.cpu.v[x] = b & byte(rand.Intn(256))
     context.cpu.pc++
 }
@@ -217,6 +219,7 @@ func rnd(context *Context) {
 // Display n-byte sprite starting at memory location I at (Vx, Vy), set VF = collision
 func drw(context *Context) {
     // Use Window/Draw interface
+    // TODO
 }
 
 // Ex9E - SKP Vx
@@ -234,22 +237,65 @@ func sknp(context *Context) {
 // Fx07 - MV Vx, DT
 // Set Vx = delay timer value
 func mvfd(context *Context) {
-
+    x := context.opcode & 0x0F00 >> 8
+    context.cpu.v[x] = context.cpu.dt
+    context.cpu.pc++
 }
 
 // Fx15 - MV DT, Vx
 // Set delay timer = Vx.
 func mvtd(context *Context) {
-
+    x := context.opcode & 0x0F00 >> 8
+    context.cpu.dt = context.cpu.v[x]
+    context.cpu.pc++
 }
 
 // Fx0A - LD Vx, K
 // Wait for a key press, store the value of the key in Vx
+func ldk(context *Context) {
+    // TODO
+}
 
-// Fx18 - LD ST, Vx
+// Fx18 - MV ST, Vx
 // Set sound timer = Vx
 func mvts(context *Context) {
+    x := context.opcode & 0x0F00 >> 8
+    context.cpu.st = context.cpu.v[x]
+    context.cpu.pc++
+}
 
+// Fx1E - ADD I, Vx
+// Set I = I + Vx
+func addi(context *Context) {
+    x := context.opcode & 0x0F00 >> 8
+    context.cpu.i += uint16(context.cpu.v[x])
+    context.cpu.pc++
+}
+
+// Fx29 - LD F, Vx
+// Set I = location of sprite for digit Vx
+func ldf(context *Context) {
+    x := context.opcode & 0x0F00 >> 8
+    context.cpu.i += uint16(context.cpu.v[x])
+    context.cpu.pc++
+}
+
+// Fx33 - LD B, Vx
+// Store BCD representation of Vx in memory locations I, I+1, and I+2
+func stbcd(context *Context) {
+    // TODO
+}
+
+// Fx55 - ST [I], Vx
+// Store registers V0 through Vx in memory starting at location I
+func st(context *Context) {
+    // TODO
+}
+
+// Fx65 - LD Vx, [I]
+// Read registers V0 through Vx from memory starting at location I
+func ld(context *Context) {
+    // TODO
 }
 
 var opcodes = [17]Opcode { ops0, jp, call, seb, sneb, se, ldb, addb, ops8,

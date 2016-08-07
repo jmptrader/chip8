@@ -20,14 +20,13 @@ func TestCall(t *testing.T) {
     context := newContext(newCPU())
 
     context.opcode = 0x2321
-    // pc := context.cpu.pc
-    context.cpu.pc = 15
     context.cpu.sp = 3
+    pc := context.cpu.pc
 
     runOpcode(context)
     assert.Equal(context.cpu.pc, uint16(0x321))
     assert.Equal(context.cpu.sp, byte(4))
-    assert.Equal(context.stack[context.cpu.sp], uint16(15))
+    assert.Equal(context.stack[context.cpu.sp], pc)
 }
 
 func TestSebSkip(t *testing.T) {
@@ -35,12 +34,11 @@ func TestSebSkip(t *testing.T) {
     context := newContext(newCPU())
 
     context.opcode = 0x3111
-    // Explicitly set or fetch pc
-    // context.cpu.pc =
     context.cpu.v[1] = 17
+    pc := context.cpu.pc
 
     runOpcode(context)
-    assert.Equal(uint16(2), context.cpu.pc)
+    assert.Equal(pc + 2, context.cpu.pc)
 }
 
 func TestSebNoSkip(t *testing.T) {
@@ -49,9 +47,10 @@ func TestSebNoSkip(t *testing.T) {
 
     context.opcode = 0x3111
     context.cpu.v[1] = 15
+    pc := context.cpu.pc
 
     runOpcode(context)
-    assert.Equal(uint16(1), context.cpu.pc)
+    assert.Equal(pc + 1, context.cpu.pc)
 }
 
 func TestSnebSkip(t *testing.T) {
@@ -60,9 +59,10 @@ func TestSnebSkip(t *testing.T) {
 
     context.opcode = 0x4111
     context.cpu.v[1] = 15
+    pc := context.cpu.pc
 
     runOpcode(context)
-    assert.Equal(uint16(2), context.cpu.pc)
+    assert.Equal(pc + 2, context.cpu.pc)
 }
 
 func TestSnebNoSkip(t *testing.T) {
@@ -72,8 +72,10 @@ func TestSnebNoSkip(t *testing.T) {
     context.opcode = 0x4111
     context.cpu.v[1] = 17
 
+    pc := context.cpu.pc
+
     runOpcode(context)
-    assert.Equal(uint16(1), context.cpu.pc)
+    assert.Equal(pc + 1, context.cpu.pc)
 }
 
 func TestSeSkip(t *testing.T) {
@@ -83,9 +85,10 @@ func TestSeSkip(t *testing.T) {
     context.opcode = 0x5120
     context.cpu.v[1] = 17
     context.cpu.v[2] = 17
+    pc := context.cpu.pc
 
     runOpcode(context)
-    assert.Equal(uint16(2), context.cpu.pc)
+    assert.Equal(pc + 2, context.cpu.pc)
 }
 
 func TestSeNoSkip(t *testing.T) {
@@ -95,9 +98,10 @@ func TestSeNoSkip(t *testing.T) {
     context.opcode = 0x5120
     context.cpu.v[1] = 15
     context.cpu.v[2] = 17
+    pc := context.cpu.pc
 
     runOpcode(context)
-    assert.Equal(uint16(1), context.cpu.pc)
+    assert.Equal(pc + 1, context.cpu.pc)
 }
 
 func TestMv(t *testing.T) {
@@ -106,10 +110,11 @@ func TestMv(t *testing.T) {
 
     context.cpu.v[2] = 0x01
     context.opcode = 0x8120
+    pc := context.cpu.pc
 
     runOpcode(context)
     assert.Equal(context.cpu.v[2], context.cpu.v[1])
-    assert.Equal(uint16(1), context.cpu.pc)
+    assert.Equal(pc + 1, context.cpu.pc)
 }
 
 func TestOr(t *testing.T) {
@@ -119,10 +124,11 @@ func TestOr(t *testing.T) {
     context.cpu.v[1] = 0x01
     context.cpu.v[2] = 0x10
     context.opcode = 0x8121
+    pc := context.cpu.pc
 
     runOpcode(context)
     assert.Equal(0x11, int(context.cpu.v[1]))
-    assert.Equal(uint16(1), context.cpu.pc)
+    assert.Equal(pc + 1, context.cpu.pc)
 }
 
 func TestAnd(t *testing.T) {
@@ -132,10 +138,11 @@ func TestAnd(t *testing.T) {
     context.cpu.v[1] = 0x11
     context.cpu.v[2] = 0x10
     context.opcode = 0x8122
+    pc := context.cpu.pc
 
     runOpcode(context)
     assert.Equal(0x10, int(context.cpu.v[1]))
-    assert.Equal(uint16(1), context.cpu.pc)
+    assert.Equal(pc + 1, context.cpu.pc)
 }
 
 func TestXor(t *testing.T) {
@@ -145,10 +152,11 @@ func TestXor(t *testing.T) {
     context.cpu.v[1] = 0x11
     context.cpu.v[2] = 0x10
     context.opcode = 0x8123
+    pc := context.cpu.pc
 
     runOpcode(context)
     assert.Equal(0x01, int(context.cpu.v[1]))
-    assert.Equal(uint16(1), context.cpu.pc)
+    assert.Equal(pc + 1, context.cpu.pc)
 }
 
 func TestAddNoCarry(t *testing.T) {
@@ -157,12 +165,14 @@ func TestAddNoCarry(t *testing.T) {
 
     context.cpu.v[1] = 0x03
     context.cpu.v[2] = 0x02
+    context.cpu.v[0xF] = 1
     context.opcode = 0x8124
+    pc := context.cpu.pc
 
     runOpcode(context)
     assert.Equal(5, int(context.cpu.v[1]))
     assert.Equal(0, int(context.cpu.v[0xF])) // No carry
-    assert.Equal(uint16(1), context.cpu.pc)
+    assert.Equal(pc + 1, context.cpu.pc)
 }
 
 func TestAddCarry(t *testing.T) {
@@ -171,12 +181,14 @@ func TestAddCarry(t *testing.T) {
 
     context.cpu.v[1] = 0xFF
     context.cpu.v[2] = 0x05
+    context.cpu.v[0xF] = 0
     context.opcode = 0x8124
+    pc := context.cpu.pc
 
     runOpcode(context)
     assert.Equal(4, int(context.cpu.v[1]))
     assert.Equal(1, int(context.cpu.v[0xF])) // Carry
-    assert.Equal(uint16(1), context.cpu.pc)
+    assert.Equal(pc + 1, context.cpu.pc)
 }
 
 func TestSubBorrow(t *testing.T) {
@@ -185,12 +197,14 @@ func TestSubBorrow(t *testing.T) {
 
     context.cpu.v[1] = 0x03
     context.cpu.v[2] = 0x05
+    context.cpu.v[0xF] = 1
     context.opcode = 0x8125
+    pc := context.cpu.pc
 
     runOpcode(context)
     assert.Equal(254, int(context.cpu.v[1]))
     assert.Equal(0, int(context.cpu.v[0xF])) // Borrow
-    assert.Equal(uint16(1), context.cpu.pc)
+    assert.Equal(pc + 1, context.cpu.pc)
 }
 
 func TestSubNoBorrow(t *testing.T) {
@@ -199,12 +213,14 @@ func TestSubNoBorrow(t *testing.T) {
 
     context.cpu.v[1] = 0x05
     context.cpu.v[2] = 0x03
+    context.cpu.v[0xF] = 0
     context.opcode = 0x8125
+    pc := context.cpu.pc
 
     runOpcode(context)
     assert.Equal(2, int(context.cpu.v[1]))
     assert.Equal(1, int(context.cpu.v[0xF])) // No borrow
-    assert.Equal(uint16(1), context.cpu.pc)
+    assert.Equal(pc + 1, context.cpu.pc)
 }
 
 func TestShrLSB1(t *testing.T) {
@@ -212,13 +228,14 @@ func TestShrLSB1(t *testing.T) {
     context := newContext(newCPU())
 
     context.cpu.v[1] = 0x05
+    context.cpu.v[0xF] = 0
     context.opcode = 0x8106
-    // context.cpu.v[0xF] = 0
+    pc := context.cpu.pc
 
     runOpcode(context)
     assert.Equal(2, int(context.cpu.v[1]))
     assert.Equal(1, int(context.cpu.v[0xF]))
-    assert.Equal(uint16(1), context.cpu.pc)
+    assert.Equal(pc + 1, context.cpu.pc)
 }
 
 func TestShrLSB0(t *testing.T) {
@@ -226,11 +243,12 @@ func TestShrLSB0(t *testing.T) {
     context := newContext(newCPU())
 
     context.cpu.v[1] = 0x06
+    context.cpu.v[0xF] = 1
     context.opcode = 0x8106
-    // context.cpu.v[0xF] = 1
+    pc := context.cpu.pc
 
     runOpcode(context)
     assert.Equal(3, int(context.cpu.v[1]))
     assert.Equal(0, int(context.cpu.v[0xF]))
-    assert.Equal(uint16(1), context.cpu.pc)
+    assert.Equal(pc + 1, context.cpu.pc)
 }
