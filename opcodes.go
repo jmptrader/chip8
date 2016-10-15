@@ -1,6 +1,9 @@
 package chip8
 
-import "math/rand"
+import (
+    "math/rand"
+    "fmt"
+)
 
 type Opcode func(*Context)
 
@@ -14,7 +17,14 @@ func nop(context *Context) {
 
 // 0xxx opcodes
 func ops0(context *Context) {
-    opcodes0[context.opcode & 0x8 >> 3](context)
+    switch context.opcode & 0x00FF {
+    case 0xE0:
+        cls(context)
+    case 0xEE:
+        ret(context)
+    default:
+        panic(fmt.Sprintf("Unrecognized opcode %v!", context.opcode))
+    }
 }
 
 // 00E0 - CLS
@@ -97,7 +107,28 @@ func addb(context *Context) {
 
 // 8xxx opcodes
 func ops8(context *Context) {
-    opcodes8[context.opcode & 0xF](context);
+    switch context.opcode & 0x000F {
+    case 0x0:
+        mv(context)
+    case 0x1:
+        or(context)
+    case 0x2:
+        and(context)
+    case 0x3:
+        xor(context)
+    case 0x4:
+        add(context)
+    case 0x5:
+        sub(context)
+    case 0x6:
+        shr(context)
+    case 0x7:
+        subn(context)
+    case 0xE:
+        shl(context)
+    default:
+        panic(fmt.Sprintf("Unrecognized opcode %v!", context.opcode))
+    }
     context.cpu.pc++
 }
 
@@ -321,8 +352,3 @@ func ld(context *Context) {
 
 var opcodes = [17]Opcode { ops0, jp, call, seb, sneb, se, ldb, addb, ops8,
                            sne, ldn, jpn, rnd, drw, skp, sknp, nop }
-
-var opcodes0 = [2]Opcode { cls, ret }
-
-var opcodes8 = [16]Opcode { mv, or, and, xor, add, sub, shr,
-                            subn, shl, nop, nop, nop, nop, shl }

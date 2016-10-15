@@ -1,17 +1,29 @@
 package chip8
 
-func Run() {
-    var memory [4096]byte
+type Driver struct {
+    window  Window
+    context *Context
+}
 
-    memory[0] = 0x21;
-    memory[1] = 0x23;
+func NewDriver(window Window) *Driver {
+    return &Driver{window: window}
+}
 
-    cpu := newCPU()
-    context := newContext(cpu)
-    context.opcode = uint16(memory[cpu.pc]) << 8 | uint16(memory[cpu.pc + 1])
+func (d *Driver) Run() {
+    //var memory [4096]byte
+    //cpu := newCPU()
+    //context := newContext(cpu, memory)
 
-    cpu.pc += 2
-    cpu.v[10] = 't'
+    window := d.window
+    for !window.ShouldClose() {
+        window.Update()
+        //context.opcode = d.nextOpcode()
+        //runOpcode(context)
+    }
+}
 
-    runOpcode(context)
+func (d *Driver) nextOpcode() uint16 {
+    memory := d.context.memory
+    cpu := d.context.cpu
+    return uint16(memory[cpu.pc]) << 8 | uint16(memory[cpu.pc + 1])
 }
