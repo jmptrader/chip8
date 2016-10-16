@@ -7,6 +7,9 @@ import (
 
 type Opcode func(*Context)
 
+var opcodes = [17]Opcode { ops0, jp, call, seb, sneb, se, ldb, addb, ops8,
+    sne, ldn, jpn, rnd, drw, opse, opsf }
+
 func runOpcode(context *Context) {
     opcodes[(context.opcode & 0xF000) >> 12](context)
 }
@@ -270,6 +273,17 @@ func drw(context *Context) {
     // TODO
 }
 
+func opse(context *Context) {
+    switch context.opcode & 0x00FF {
+    case 0x9E:
+        skp(context)
+    case 0xA1:
+        sknp(context)
+    default:
+        panic(fmt.Sprintf("Unrecognized opcode %v!", context.opcode))
+    }
+}
+
 // Ex9E - SKP Vx
 // Skip next instruction if key with the value of Vx is pressed
 func skp(context *Context) {
@@ -283,7 +297,29 @@ func sknp(context *Context) {
 }
 
 func opsf(context *Context) {
-    // TODO
+    switch context.opcode & 0x00FF {
+    case 0x07:
+        mvfd(context)
+    case 0x0A:
+        ldk(context)
+    case 0x15:
+        mvtd(context)
+    case 0x18:
+        mvts(context)
+    case 0x1E:
+        addi(context)
+    case 0x29:
+        ldf(context)
+    case 0x33:
+        stbcd(context)
+    case 0x55:
+        st(context)
+    case 0x65:
+        ld(context)
+    default:
+        panic(fmt.Sprintf("Unrecognized opcode %v!", context.opcode))
+    }
+    context.cpu.pc++
 }
 
 // Fx07 - MV Vx, DT
@@ -335,7 +371,11 @@ func ldf(context *Context) {
 // Fx33 - LD B, Vx
 // Store BCD representation of Vx in memory locations I, I+1, and I+2
 func stbcd(context *Context) {
-    // TODO
+    x := context.opcode & 0x0F00 >> 8
+    num := context.cpu.v[x]
+    context.memory[context.cpu.i] = byte((num / 100) % 10)
+    context.memory[context.cpu.i + 1] = byte((num / 10) % 10)
+    context.memory[context.cpu.i + 2] = byte(num % 10)
 }
 
 // Fx55 - ST [I], Vx
@@ -350,5 +390,3 @@ func ld(context *Context) {
     // TODO
 }
 
-var opcodes = [17]Opcode { ops0, jp, call, seb, sneb, se, ldb, addb, ops8,
-                           sne, ldn, jpn, rnd, drw, skp, sknp, nop }

@@ -7,7 +7,7 @@ import (
 
 func TestRet(t *testing.T) {
     assert := assert.New(t)
-    context := newContext(newCPU())
+    context := newContext(newCPU(), [4096]byte{})
 
     context.opcode = 0x00EE
     context.cpu.sp = 1
@@ -20,7 +20,7 @@ func TestRet(t *testing.T) {
 
 func TestJp(t *testing.T) {
     assert := assert.New(t)
-    context := newContext(newCPU())
+    context := newContext(newCPU(), [4096]byte{})
 
     context.opcode = 0x1321
 
@@ -30,7 +30,7 @@ func TestJp(t *testing.T) {
 
 func TestCall(t *testing.T) {
     assert := assert.New(t)
-    context := newContext(newCPU())
+    context := newContext(newCPU(), [4096]byte{})
 
     context.opcode = 0x2321
     context.cpu.sp = 3
@@ -44,7 +44,7 @@ func TestCall(t *testing.T) {
 
 func TestSebSkip(t *testing.T) {
     assert := assert.New(t)
-    context := newContext(newCPU())
+    context := newContext(newCPU(), [4096]byte{})
 
     context.opcode = 0x3111
     context.cpu.v[1] = 17
@@ -56,7 +56,7 @@ func TestSebSkip(t *testing.T) {
 
 func TestSebNoSkip(t *testing.T) {
     assert := assert.New(t)
-    context := newContext(newCPU())
+    context := newContext(newCPU(), [4096]byte{})
 
     context.opcode = 0x3111
     context.cpu.v[1] = 15
@@ -68,7 +68,7 @@ func TestSebNoSkip(t *testing.T) {
 
 func TestSnebSkip(t *testing.T) {
     assert := assert.New(t)
-    context := newContext(newCPU())
+    context := newContext(newCPU(), [4096]byte{})
 
     context.opcode = 0x4111
     context.cpu.v[1] = 15
@@ -80,7 +80,7 @@ func TestSnebSkip(t *testing.T) {
 
 func TestSnebNoSkip(t *testing.T) {
     assert := assert.New(t)
-    context := newContext(newCPU())
+    context := newContext(newCPU(), [4096]byte{})
 
     context.opcode = 0x4111
     context.cpu.v[1] = 17
@@ -93,7 +93,7 @@ func TestSnebNoSkip(t *testing.T) {
 
 func TestSeSkip(t *testing.T) {
     assert := assert.New(t)
-    context := newContext(newCPU())
+    context := newContext(newCPU(), [4096]byte{})
 
     context.opcode = 0x5120
     context.cpu.v[1] = 17
@@ -106,7 +106,7 @@ func TestSeSkip(t *testing.T) {
 
 func TestSeNoSkip(t *testing.T) {
     assert := assert.New(t)
-    context := newContext(newCPU())
+    context := newContext(newCPU(), [4096]byte{})
 
     context.opcode = 0x5120
     context.cpu.v[1] = 15
@@ -119,7 +119,7 @@ func TestSeNoSkip(t *testing.T) {
 
 func TestMv(t *testing.T) {
     assert := assert.New(t)
-    context := newContext(newCPU())
+    context := newContext(newCPU(), [4096]byte{})
 
     context.cpu.v[2] = 0x01
     context.opcode = 0x8120
@@ -132,7 +132,7 @@ func TestMv(t *testing.T) {
 
 func TestOr(t *testing.T) {
     assert := assert.New(t)
-    context := newContext(newCPU())
+    context := newContext(newCPU(), [4096]byte{})
 
     context.cpu.v[1] = 0x01
     context.cpu.v[2] = 0x10
@@ -146,7 +146,7 @@ func TestOr(t *testing.T) {
 
 func TestAnd(t *testing.T) {
     assert := assert.New(t)
-    context := newContext(newCPU())
+    context := newContext(newCPU(), [4096]byte{})
 
     context.cpu.v[1] = 0x11
     context.cpu.v[2] = 0x10
@@ -160,7 +160,7 @@ func TestAnd(t *testing.T) {
 
 func TestXor(t *testing.T) {
     assert := assert.New(t)
-    context := newContext(newCPU())
+    context := newContext(newCPU(), [4096]byte{})
 
     context.cpu.v[1] = 0x11
     context.cpu.v[2] = 0x10
@@ -174,7 +174,7 @@ func TestXor(t *testing.T) {
 
 func TestAddNoCarry(t *testing.T) {
     assert := assert.New(t)
-    context := newContext(newCPU())
+    context := newContext(newCPU(), [4096]byte{})
 
     context.cpu.v[1] = 0x03
     context.cpu.v[2] = 0x02
@@ -190,7 +190,7 @@ func TestAddNoCarry(t *testing.T) {
 
 func TestAddCarry(t *testing.T) {
     assert := assert.New(t)
-    context := newContext(newCPU())
+    context := newContext(newCPU(), [4096]byte{})
 
     context.cpu.v[1] = 0xFF
     context.cpu.v[2] = 0x05
@@ -206,7 +206,7 @@ func TestAddCarry(t *testing.T) {
 
 func TestSubBorrow(t *testing.T) {
     assert := assert.New(t)
-    context := newContext(newCPU())
+    context := newContext(newCPU(), [4096]byte{})
 
     context.cpu.v[1] = 0x03
     context.cpu.v[2] = 0x05
@@ -222,7 +222,7 @@ func TestSubBorrow(t *testing.T) {
 
 func TestSubNoBorrow(t *testing.T) {
     assert := assert.New(t)
-    context := newContext(newCPU())
+    context := newContext(newCPU(), [4096]byte{})
 
     context.cpu.v[1] = 0x05
     context.cpu.v[2] = 0x03
@@ -238,7 +238,7 @@ func TestSubNoBorrow(t *testing.T) {
 
 func TestShrLSB1(t *testing.T) {
     assert := assert.New(t)
-    context := newContext(newCPU())
+    context := newContext(newCPU(), [4096]byte{})
 
     context.cpu.v[1] = 0x05
     context.cpu.v[0xF] = 0
@@ -253,7 +253,7 @@ func TestShrLSB1(t *testing.T) {
 
 func TestShrLSB0(t *testing.T) {
     assert := assert.New(t)
-    context := newContext(newCPU())
+    context := newContext(newCPU(), [4096]byte{})
 
     context.cpu.v[1] = 0x06
     context.cpu.v[0xF] = 1
@@ -263,5 +263,21 @@ func TestShrLSB0(t *testing.T) {
     runOpcode(context)
     assert.Equal(3, int(context.cpu.v[1]))
     assert.Equal(0, int(context.cpu.v[0xF]))
+    assert.Equal(pc + 1, context.cpu.pc)
+}
+
+func TestStBCD(t *testing.T) {
+    assert := assert.New(t)
+    context := newContext(newCPU(), [4096]byte{})
+
+    context.cpu.i = 100
+    context.cpu.v[1] = byte(123)
+    context.opcode = 0xF133
+    pc := context.cpu.pc
+
+    runOpcode(context)
+    assert.Equal(1, int(context.memory[100]))
+    assert.Equal(2, int(context.memory[101]))
+    assert.Equal(3, int(context.memory[102]))
     assert.Equal(pc + 1, context.cpu.pc)
 }
