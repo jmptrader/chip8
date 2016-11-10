@@ -12,8 +12,8 @@ func init() {
 
 // Command line binary
 func main() {
-    window := chip8.InitOpenGLWindow()
-    defer window.Release()
-    driver := chip8.NewDriver(window)
+    screen := chip8.InitOpenGLScreen()
+    defer screen.Release()
+    driver := chip8.NewDriver(screen)
     driver.Run()
 }

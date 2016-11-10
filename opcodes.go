@@ -8,14 +8,10 @@ import (
 type Opcode func(*Context)
 
 var opcodes = [17]Opcode { ops0, jp, call, seb, sneb, se, ldb, addb, ops8,
-    sne, ldn, jpn, rnd, drw, opse, opsf }
+                           sne, ldn, jpn, rnd, drw, opse, opsf }
 
 func runOpcode(context *Context) {
     opcodes[(context.opcode & 0xF000) >> 12](context)
-}
-
-func nop(context *Context) {
-    // Do nothing
 }
 
 // 0xxx opcodes
@@ -33,7 +29,8 @@ func ops0(context *Context) {
 // 00E0 - CLS
 // Clear the display
 func cls(context *Context) {
-    // Clear display
+    context.screen.Clear()
+    context.cpu.pc++
 }
 
 // 00EE - RET
@@ -269,8 +266,13 @@ func rnd(context *Context) {
 // Dxyn - DRW Vx, Vy, nibble
 // Display n-byte sprite starting at memory location I at (Vx, Vy), set VF = collision
 func drw(context *Context) {
-    // Use Window/Draw interface
-    // TODO
+    x := context.opcode & 0x0F00 >> 8
+    y := context.opcode & 0x00F0 >> 4
+    n := context.opcode & 0x000F
+    sprite := context.memory[context.cpu.i:context.cpu.i + n]
+    context.screen.Draw(uint(context.cpu.v[x]), uint(context.cpu.v[y]), sprite)
+
+    context.cpu.pc++
 }
 
 func opse(context *Context) {
@@ -381,12 +383,17 @@ func stbcd(context *Context) {
 // Fx55 - ST [I], Vx
 // Store registers V0 through Vx in memory starting at location I
 func st(context *Context) {
-    // TODO
+    x := context.opcode & 0x0F00 >> 8
+    for k := uint16(0); k <= x; k++ {
+        context.memory[context.cpu.i + k] = context.cpu.v[k]
+    }
 }
 
 // Fx65 - LD Vx, [I]
 // Read registers V0 through Vx from memory starting at location I
 func ld(context *Context) {
-    // TODO
+    x := context.opcode & 0x0F00 >> 8
+    for k := uint16(0); k <= x; k++ {
+        context.cpu.v[k] = context.memory[context.cpu.i + k]
+    }
 }
-
