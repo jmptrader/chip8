@@ -1,22 +1,20 @@
 package chip8
 
 type Driver struct {
-    screen  Screen
+    window  Window
     context *Context
 }
 
-func NewDriver(screen Screen) *Driver {
-    return &Driver{screen: screen}
+func NewDriver(window Window) *Driver {
+    return &Driver{window: window}
 }
 
 func (d *Driver) Run() {
-    //var memory [4096]byte
-    //cpu := newCPU()
-    //context := newContext(cpu, memory)
-
-    screen := d.screen
-    for !screen.ShouldClose() {
-        screen.Update()
+    sprite := []byte{255, 255, 255, 255, 255, 255, 255, 255}
+    window := d.window
+    for !window.ShouldClose() {
+        window.Update()
+        window.Draw(0, 0, sprite)
         //context.opcode = d.nextOpcode()
         //runOpcode(context)
     }

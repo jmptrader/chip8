@@ -29,7 +29,7 @@ func ops0(context *Context) {
 // 00E0 - CLS
 // Clear the display
 func cls(context *Context) {
-    context.screen.Clear()
+    context.window.Clear()
     context.cpu.pc++
 }
 
@@ -269,9 +269,25 @@ func drw(context *Context) {
     x := context.opcode & 0x0F00 >> 8
     y := context.opcode & 0x00F0 >> 4
     n := context.opcode & 0x000F
-    sprite := context.memory[context.cpu.i:context.cpu.i + n]
-    context.screen.Draw(uint(context.cpu.v[x]), uint(context.cpu.v[y]), sprite)
+    vx, vy := int(context.cpu.v[x]), int(context.cpu.v[y])
 
+    sprite := make([]byte, n, n)
+    copy(sprite, context.memory[context.cpu.i:context.cpu.i + n])
+
+    // Replace raw sprite with XOR of screen and sprite
+    // Clear VF and set to 1 if there is any pixel collision
+    context.cpu.v[0xF] = 0
+    for j := 0; j < len(sprite); j++ {
+        for i := 0; i < 8; i++ {
+            shift := uint(8 - i - 1)
+            pixel := context.screen[(vx + i) % 64][(vy + j) % 32] ^ (sprite[j] >> shift) & 0x1
+            context.screen[(vx + i) % 64][(vy + j) % 32] = pixel
+            sprite[j] = pixel << shift | sprite[j] & (255 - (1 << shift))
+            context.cpu.v[0xF] |= pixel
+        }
+    }
+
+    context.window.Draw(uint(vx), uint(vy), sprite)
     context.cpu.pc++
 }
 

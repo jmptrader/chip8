@@ -5,9 +5,10 @@ type Context struct {
     stack  [16]uint16
     memory [4096]byte
     cpu    *CPU
-    screen Screen
+    window Window // Interface for audio, graphics, and input
+    screen [64][32]byte // Internal representation of screen independent of window
 }
 
-func newContext(cpu *CPU, screen Screen, memory [4096]byte) *Context {
-    return &Context{opcode: 0, cpu: cpu, screen: screen, stack: [16]uint16{}, memory: memory}
+func newContext(cpu *CPU, window Window, memory [4096]byte) *Context {
+    return &Context{opcode: 0, cpu: cpu, window: window, memory: memory}
 }

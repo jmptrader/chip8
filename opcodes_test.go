@@ -5,36 +5,36 @@ import (
     "testing"
 )
 
-type TestScreen struct {
-    x, y uint
-    sprite []byte
+type TestWindow struct {
+    x, y       uint
+    sprite     []byte
     wasCleared bool
 }
 
-func (s *TestScreen) Update() {
+func (w *TestWindow) Update() {
     // Noop
 }
 
-func (s *TestScreen) Draw(x uint, y uint, sprite []byte) {
-    s.x, s.y = x, y
-    s.sprite = sprite
+func (w *TestWindow) Draw(x, y uint, sprite []byte) {
+    w.x, w.y = x, y
+    w.sprite = sprite
 }
 
-func (s *TestScreen) Clear() {
-    s.wasCleared = true
+func (w *TestWindow) Clear() {
+    w.wasCleared = true
 }
 
-func (s *TestScreen) ShouldClose() bool {
+func (w *TestWindow) ShouldClose() bool {
     return false
 }
 
-func (s *TestScreen) Release() {
+func (w *TestWindow) Release() {
     // Noop
 }
 
 func TestRet(t *testing.T) {
     assert := assert.New(t)
-    context := newContext(newCPU(), new(TestScreen), [4096]byte{})
+    context := newContext(newCPU(), new(TestWindow), [4096]byte{})
 
     context.opcode = 0x00EE
     context.cpu.sp = 1
@@ -47,7 +47,7 @@ func TestRet(t *testing.T) {
 
 func TestJp(t *testing.T) {
     assert := assert.New(t)
-    context := newContext(newCPU(), new(TestScreen), [4096]byte{})
+    context := newContext(newCPU(), new(TestWindow), [4096]byte{})
 
     context.opcode = 0x1321
 
@@ -57,7 +57,7 @@ func TestJp(t *testing.T) {
 
 func TestCall(t *testing.T) {
     assert := assert.New(t)
-    context := newContext(newCPU(), new(TestScreen), [4096]byte{})
+    context := newContext(newCPU(), new(TestWindow), [4096]byte{})
 
     context.opcode = 0x2321
     context.cpu.sp = 3
@@ -71,7 +71,7 @@ func TestCall(t *testing.T) {
 
 func TestSebSkip(t *testing.T) {
     assert := assert.New(t)
-    context := newContext(newCPU(), new(TestScreen), [4096]byte{})
+    context := newContext(newCPU(), new(TestWindow), [4096]byte{})
 
     context.opcode = 0x3111
     context.cpu.v[1] = 17
@@ -83,7 +83,7 @@ func TestSebSkip(t *testing.T) {
 
 func TestSebNoSkip(t *testing.T) {
     assert := assert.New(t)
-    context := newContext(newCPU(), new(TestScreen), [4096]byte{})
+    context := newContext(newCPU(), new(TestWindow), [4096]byte{})
 
     context.opcode = 0x3111
     context.cpu.v[1] = 15
@@ -95,7 +95,7 @@ func TestSebNoSkip(t *testing.T) {
 
 func TestSnebSkip(t *testing.T) {
     assert := assert.New(t)
-    context := newContext(newCPU(), new(TestScreen), [4096]byte{})
+    context := newContext(newCPU(), new(TestWindow), [4096]byte{})
 
     context.opcode = 0x4111
     context.cpu.v[1] = 15
@@ -107,7 +107,7 @@ func TestSnebSkip(t *testing.T) {
 
 func TestSnebNoSkip(t *testing.T) {
     assert := assert.New(t)
-    context := newContext(newCPU(), new(TestScreen), [4096]byte{})
+    context := newContext(newCPU(), new(TestWindow), [4096]byte{})
 
     context.opcode = 0x4111
     context.cpu.v[1] = 17
@@ -120,7 +120,7 @@ func TestSnebNoSkip(t *testing.T) {
 
 func TestSeSkip(t *testing.T) {
     assert := assert.New(t)
-    context := newContext(newCPU(), new(TestScreen), [4096]byte{})
+    context := newContext(newCPU(), new(TestWindow), [4096]byte{})
 
     context.opcode = 0x5120
     context.cpu.v[1] = 17
@@ -133,7 +133,7 @@ func TestSeSkip(t *testing.T) {
 
 func TestSeNoSkip(t *testing.T) {
     assert := assert.New(t)
-    context := newContext(newCPU(), new(TestScreen), [4096]byte{})
+    context := newContext(newCPU(), new(TestWindow), [4096]byte{})
 
     context.opcode = 0x5120
     context.cpu.v[1] = 15
@@ -146,7 +146,7 @@ func TestSeNoSkip(t *testing.T) {
 
 func TestMv(t *testing.T) {
     assert := assert.New(t)
-    context := newContext(newCPU(), new(TestScreen), [4096]byte{})
+    context := newContext(newCPU(), new(TestWindow), [4096]byte{})
 
     context.cpu.v[2] = 0x01
     context.opcode = 0x8120
@@ -159,7 +159,7 @@ func TestMv(t *testing.T) {
 
 func TestOr(t *testing.T) {
     assert := assert.New(t)
-    context := newContext(newCPU(), new(TestScreen), [4096]byte{})
+    context := newContext(newCPU(), new(TestWindow), [4096]byte{})
 
     context.cpu.v[1] = 0x01
     context.cpu.v[2] = 0x10
@@ -173,7 +173,7 @@ func TestOr(t *testing.T) {
 
 func TestAnd(t *testing.T) {
     assert := assert.New(t)
-    context := newContext(newCPU(), new(TestScreen), [4096]byte{})
+    context := newContext(newCPU(), new(TestWindow), [4096]byte{})
 
     context.cpu.v[1] = 0x11
     context.cpu.v[2] = 0x10
@@ -187,7 +187,7 @@ func TestAnd(t *testing.T) {
 
 func TestXor(t *testing.T) {
     assert := assert.New(t)
-    context := newContext(newCPU(), new(TestScreen), [4096]byte{})
+    context := newContext(newCPU(), new(TestWindow), [4096]byte{})
 
     context.cpu.v[1] = 0x11
     context.cpu.v[2] = 0x10
@@ -201,7 +201,7 @@ func TestXor(t *testing.T) {
 
 func TestAddNoCarry(t *testing.T) {
     assert := assert.New(t)
-    context := newContext(newCPU(), new(TestScreen), [4096]byte{})
+    context := newContext(newCPU(), new(TestWindow), [4096]byte{})
 
     context.cpu.v[1] = 0x03
     context.cpu.v[2] = 0x02
@@ -217,7 +217,7 @@ func TestAddNoCarry(t *testing.T) {
 
 func TestAddCarry(t *testing.T) {
     assert := assert.New(t)
-    context := newContext(newCPU(), new(TestScreen), [4096]byte{})
+    context := newContext(newCPU(), new(TestWindow), [4096]byte{})
 
     context.cpu.v[1] = 0xFF
     context.cpu.v[2] = 0x05
@@ -233,7 +233,7 @@ func TestAddCarry(t *testing.T) {
 
 func TestSubBorrow(t *testing.T) {
     assert := assert.New(t)
-    context := newContext(newCPU(), new(TestScreen), [4096]byte{})
+    context := newContext(newCPU(), new(TestWindow), [4096]byte{})
 
     context.cpu.v[1] = 0x03
     context.cpu.v[2] = 0x05
@@ -249,7 +249,7 @@ func TestSubBorrow(t *testing.T) {
 
 func TestSubNoBorrow(t *testing.T) {
     assert := assert.New(t)
-    context := newContext(newCPU(), new(TestScreen), [4096]byte{})
+    context := newContext(newCPU(), new(TestWindow), [4096]byte{})
 
     context.cpu.v[1] = 0x05
     context.cpu.v[2] = 0x03
@@ -265,7 +265,7 @@ func TestSubNoBorrow(t *testing.T) {
 
 func TestShrLSB1(t *testing.T) {
     assert := assert.New(t)
-    context := newContext(newCPU(), new(TestScreen), [4096]byte{})
+    context := newContext(newCPU(), new(TestWindow), [4096]byte{})
 
     context.cpu.v[1] = 0x05
     context.cpu.v[0xF] = 0
@@ -280,7 +280,7 @@ func TestShrLSB1(t *testing.T) {
 
 func TestShrLSB0(t *testing.T) {
     assert := assert.New(t)
-    context := newContext(newCPU(), new(TestScreen), [4096]byte{})
+    context := newContext(newCPU(), new(TestWindow), [4096]byte{})
 
     context.cpu.v[1] = 0x06
     context.cpu.v[0xF] = 1
@@ -295,7 +295,7 @@ func TestShrLSB0(t *testing.T) {
 
 func TestStBCD(t *testing.T) {
     assert := assert.New(t)
-    context := newContext(newCPU(), new(TestScreen), [4096]byte{})
+    context := newContext(newCPU(), new(TestWindow), [4096]byte{})
 
     context.cpu.i = 100
     context.cpu.v[1] = 123
@@ -311,7 +311,7 @@ func TestStBCD(t *testing.T) {
 
 func TestSt(t *testing.T) {
     assert := assert.New(t)
-    context := newContext(newCPU(), new(TestScreen), [4096]byte{})
+    context := newContext(newCPU(), new(TestWindow), [4096]byte{})
 
     context.cpu.i = 100
     context.cpu.v[0] = 1
@@ -329,7 +329,7 @@ func TestSt(t *testing.T) {
 
 func TestLd(t *testing.T) {
     assert := assert.New(t)
-    context := newContext(newCPU(), new(TestScreen), [4096]byte{})
+    context := newContext(newCPU(), new(TestWindow), [4096]byte{})
 
     context.cpu.i = 100
     context.memory[100] = 1
@@ -348,11 +348,21 @@ func TestLd(t *testing.T) {
 func TestDrw(t *testing.T) {
     assert := assert.New(t)
 
-    screen := new(TestScreen)
-    context := newContext(newCPU(), screen, [4096]byte{})
+    window := new(TestWindow)
+    context := newContext(newCPU(), window, [4096]byte{})
+
+    // Stub screen with values
+    x, y := 16, 16
+    for j := 0; j < 3; j++ {
+        for i := 0; i < 8; i++ {
+            // Alternating 1s and 0s in the draw bytes
+            context.screen[x + i][y + j] = byte(i % 2)
+        }
+    }
+
     context.cpu.i = 100
-    context.cpu.v[1] = 98
-    context.cpu.v[2] = 99
+    context.cpu.v[1] = byte(x)
+    context.cpu.v[2] = byte(y)
     context.memory[100] = 1
     context.memory[101] = 2
     context.memory[102] = 3
@@ -360,21 +370,27 @@ func TestDrw(t *testing.T) {
     pc := context.cpu.pc
 
     runOpcode(context)
-    assert.Equal(uint(98), screen.x)
-    assert.Equal(uint(99), screen.y)
-    assert.Equal([]byte{1, 2, 3}, screen.sprite)
+    assert.Equal(uint(x), window.x)
+    assert.Equal(uint(y), window.y)
+    // screen   ^ sprite   -> draw
+    // 01010101 ^ 00000001 -> 01010100 (84)
+    // 01010101 ^ 00000010 -> 01010111 (87)
+    // 01010101 ^ 00000011 -> 01010110 (86)
+    assert.Equal([]byte{84, 87, 86}, window.sprite)
+    // VF = 1 since pixels were flipped
+    assert.Equal(byte(1), context.cpu.v[0xF])
     assert.Equal(pc + 1, context.cpu.pc)
 }
 
 func TestCls(t *testing.T) {
     assert := assert.New(t)
 
-    screen := new(TestScreen)
-    context := newContext(newCPU(), screen, [4096]byte{})
+    window := new(TestWindow)
+    context := newContext(newCPU(), window, [4096]byte{})
     context.opcode = 0x00E0
     pc := context.cpu.pc
 
     runOpcode(context)
-    assert.True(screen.wasCleared)
+    assert.True(window.wasCleared)
     assert.Equal(pc + 1, context.cpu.pc)
 }

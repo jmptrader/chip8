@@ -6,14 +6,14 @@ import (
 )
 
 func init() {
-    // This is needed to arrange that main() runs on main thread.
+    // This is needed to arrange that main() runs on the main thread
     runtime.LockOSThread()
 }
 
 // Command line binary
 func main() {
-    screen := chip8.InitOpenGLScreen()
-    defer screen.Release()
-    driver := chip8.NewDriver(screen)
+    window := chip8.NewSFMLWindow(64, 32)
+    defer window.Release()
+    driver := chip8.NewDriver(window)
     driver.Run()
 }

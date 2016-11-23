@@ -1,8 +1,8 @@
 package chip8
 
-type Screen interface {
+type Window interface {
     Update()
-    Draw(x uint, y uint, sprite []byte)
+    Draw(x, y uint, sprite []byte)
     Clear()
     ShouldClose() bool
     Release()
