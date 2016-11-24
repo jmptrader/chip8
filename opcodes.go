@@ -356,7 +356,6 @@ func opsf(context *Context) {
 func dtmv(context *Context) {
     x := context.opcode & 0x0F00 >> 8
     context.cpu.v[x] = context.cpu.dt
-    context.cpu.pc++
 }
 
 // Fx15 - MV DT, Vx
@@ -364,13 +363,14 @@ func dtmv(context *Context) {
 func mvdt(context *Context) {
     x := context.opcode & 0x0F00 >> 8
     context.cpu.dt = context.cpu.v[x]
-    context.cpu.pc++
 }
 
 // Fx0A - LD Vx, K
 // Wait for a key press, store the value of the key in Vx
 func ldk(context *Context) {
-    // TODO
+    x := context.opcode & 0x0F00 >> 8
+    key := context.window.WaitForKeyPress()
+    context.cpu.v[x] = byte(key)
 }
 
 // Fx18 - MV ST, Vx
@@ -378,7 +378,6 @@ func ldk(context *Context) {
 func mvst(context *Context) {
     x := context.opcode & 0x0F00 >> 8
     context.cpu.st = context.cpu.v[x]
-    context.cpu.pc++
 }
 
 // Fx1E - ADD I, Vx
@@ -386,7 +385,6 @@ func mvst(context *Context) {
 func addi(context *Context) {
     x := context.opcode & 0x0F00 >> 8
     context.cpu.i += uint16(context.cpu.v[x])
-    context.cpu.pc++
 }
 
 // Fx29 - LD F, Vx
@@ -394,7 +392,6 @@ func addi(context *Context) {
 func ldf(context *Context) {
     x := context.opcode & 0x0F00 >> 8
     context.cpu.i += uint16(context.cpu.v[x])
-    context.cpu.pc++
 }
 
 // Fx33 - LD B, Vx
