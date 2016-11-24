@@ -5,15 +5,35 @@ import (
 )
 
 type SFMLWindow struct {
-    window *sf.RenderWindow
+    window                  *sf.RenderWindow
     widthScale, heightScale float32
+    keys                    map[HexKey]sf.KeyCode
 }
 
 func NewSFMLWindow(width, height uint) *SFMLWindow {
     videoMode := sf.VideoMode{Width: width, Height: height, BitsPerPixel: 32}
     windowStyle := sf.StyleTitlebar | sf.StyleClose
     window := sf.NewRenderWindow(videoMode, "chip8", windowStyle, sf.DefaultContextSettings())
-    return &SFMLWindow{window: window, widthScale: float32(width / 64), heightScale: float32(height / 32)}
+    keys := map[HexKey]sf.KeyCode {
+        0x0: sf.KeyX,
+        0x1: sf.KeyNum1,
+        0x2: sf.KeyNum2,
+        0x3: sf.KeyNum3,
+        0x4: sf.KeyQ,
+        0x5: sf.KeyW,
+        0x6: sf.KeyE,
+        0x7: sf.KeyA,
+        0x8: sf.KeyS,
+        0x9: sf.KeyD,
+        0xA: sf.KeyZ,
+        0xB: sf.KeyC,
+        0xC: sf.KeyNum4,
+        0xD: sf.KeyR,
+        0xE: sf.KeyF,
+        0xF: sf.KeyV,
+    }
+
+    return &SFMLWindow{window: window, widthScale: float32(width / 64), heightScale: float32(height / 32), keys: keys}
 }
 
 func (w *SFMLWindow) Update() {
@@ -21,6 +41,25 @@ func (w *SFMLWindow) Update() {
         switch event.(type) {
         case sf.EventClosed:
             w.window.Close()
+        }
+    }
+}
+
+func (w *SFMLWindow) IsKeyPressed(key HexKey) bool {
+    return sf.KeyboardIsKeyPressed(w.keys[key])
+}
+
+func (w *SFMLWindow) WaitForKeyPress() HexKey {
+    for {
+        event := w.window.WaitEvent()
+        switch ev := event.(type) {
+        case sf.EventKeyPressed:
+            // Inefficient lookup. Something more elegant than storing reverse map?
+            for k, v := range w.keys {
+                if ev.Code == v {
+                    return k
+                }
+            }
         }
     }
 }

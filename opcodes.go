@@ -274,7 +274,7 @@ func drw(context *Context) {
     drawable := make([]byte, n)
     copy(drawable, context.memory[context.cpu.i:context.cpu.i + n])
 
-    // Replace raw drawable with XOR of screen and sprite
+    // Replace raw drawable with xor of screen and drawable
     // Clear VF and set to 1 if there is any pixel collision
     context.cpu.v[0xF] = 0
     for j := 0; j < len(drawable); j++ {
@@ -305,25 +305,35 @@ func opse(context *Context) {
 // Ex9E - SKP Vx
 // Skip next instruction if key with the value of Vx is pressed
 func skp(context *Context) {
-    // TODO
+    x := context.opcode & 0x0F00 >> 8
+    if context.window.IsKeyPressed(HexKey(context.cpu.v[x])) {
+        context.cpu.pc += 2
+    } else {
+        context.cpu.pc++
+    }
 }
 
 // ExA1 - SKNP Vx
 // Skip next instruction if key with the value of Vx is not pressed
 func sknp(context *Context) {
-    // TODO
+    x := context.opcode & 0x0F00 >> 8
+    if !context.window.IsKeyPressed(HexKey(context.cpu.v[x])) {
+        context.cpu.pc += 2
+    } else {
+        context.cpu.pc++
+    }
 }
 
 func opsf(context *Context) {
     switch context.opcode & 0x00FF {
     case 0x07:
-        mvfd(context)
+        dtmv(context)
     case 0x0A:
         ldk(context)
     case 0x15:
-        mvtd(context)
+        mvdt(context)
     case 0x18:
-        mvts(context)
+        mvst(context)
     case 0x1E:
         addi(context)
     case 0x29:
@@ -342,7 +352,8 @@ func opsf(context *Context) {
 
 // Fx07 - MV Vx, DT
 // Set Vx = delay timer value
-func mvfd(context *Context) {
+// TODO: come up with a better name
+func dtmv(context *Context) {
     x := context.opcode & 0x0F00 >> 8
     context.cpu.v[x] = context.cpu.dt
     context.cpu.pc++
@@ -350,7 +361,7 @@ func mvfd(context *Context) {
 
 // Fx15 - MV DT, Vx
 // Set delay timer = Vx.
-func mvtd(context *Context) {
+func mvdt(context *Context) {
     x := context.opcode & 0x0F00 >> 8
     context.cpu.dt = context.cpu.v[x]
     context.cpu.pc++
@@ -364,7 +375,7 @@ func ldk(context *Context) {
 
 // Fx18 - MV ST, Vx
 // Set sound timer = Vx
-func mvts(context *Context) {
+func mvst(context *Context) {
     x := context.opcode & 0x0F00 >> 8
     context.cpu.st = context.cpu.v[x]
     context.cpu.pc++

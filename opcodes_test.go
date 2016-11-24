@@ -15,6 +15,14 @@ func (w *TestWindow) Update() {
     // Noop
 }
 
+func (w *TestWindow) IsKeyPressed(key HexKey) bool {
+    return false
+}
+
+func (w *TestWindow) WaitForKeyPress() HexKey {
+    return 0x0
+}
+
 func (w *TestWindow) Draw(x, y uint, drawable []byte) {
     w.x, w.y = x, y
     w.drawable = drawable
