@@ -12,7 +12,9 @@ func init() {
 
 // Command line binary
 func main() {
-    window := chip8.NewSFMLWindow(64, 32)
+    // TODO: Parse command line options
+    // Enforce multiples of (64, 32) for window size
+    window := chip8.NewSFMLWindow(640, 320)
     defer window.Release()
     driver := chip8.NewDriver(window)
     driver.Run()

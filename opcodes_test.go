@@ -7,7 +7,7 @@ import (
 
 type TestWindow struct {
     x, y       uint
-    sprite     []byte
+    drawable   []byte
     wasCleared bool
 }
 
@@ -15,9 +15,9 @@ func (w *TestWindow) Update() {
     // Noop
 }
 
-func (w *TestWindow) Draw(x, y uint, sprite []byte) {
+func (w *TestWindow) Draw(x, y uint, drawable []byte) {
     w.x, w.y = x, y
-    w.sprite = sprite
+    w.drawable = drawable
 }
 
 func (w *TestWindow) Clear() {
@@ -372,11 +372,11 @@ func TestDrw(t *testing.T) {
     runOpcode(context)
     assert.Equal(uint(x), window.x)
     assert.Equal(uint(y), window.y)
-    // screen   ^ sprite   -> draw
+    // screen   ^ drawable -> draw
     // 01010101 ^ 00000001 -> 01010100 (84)
     // 01010101 ^ 00000010 -> 01010111 (87)
     // 01010101 ^ 00000011 -> 01010110 (86)
-    assert.Equal([]byte{84, 87, 86}, window.sprite)
+    assert.Equal([]byte{84, 87, 86}, window.drawable)
     // VF = 1 since pixels were flipped
     assert.Equal(byte(1), context.cpu.v[0xF])
     assert.Equal(pc + 1, context.cpu.pc)

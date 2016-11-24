@@ -6,12 +6,14 @@ import (
 
 type SFMLWindow struct {
     window *sf.RenderWindow
+    widthScale, heightScale float32
 }
 
 func NewSFMLWindow(width, height uint) *SFMLWindow {
     videoMode := sf.VideoMode{Width: width, Height: height, BitsPerPixel: 32}
-    window := sf.NewRenderWindow(videoMode, "chip8", sf.StyleDefault, sf.DefaultContextSettings())
-    return &SFMLWindow{window: window}
+    windowStyle := sf.StyleTitlebar | sf.StyleClose
+    window := sf.NewRenderWindow(videoMode, "chip8", windowStyle, sf.DefaultContextSettings())
+    return &SFMLWindow{window: window, widthScale: float32(width / 64), heightScale: float32(height / 32)}
 }
 
 func (w *SFMLWindow) Update() {
@@ -23,27 +25,46 @@ func (w *SFMLWindow) Update() {
     }
 }
 
-func (w *SFMLWindow) Draw(x, y uint, sprite []byte) {
-    // TODO: sprite can be split into 4 separate images due to wrapping
-    width, height := 8, len(sprite)
-    pixels := make([]byte, 4 * width * height, 4 * width * height)
-    for j := 0; j < height; j++ {
-        for i := 0; i < width; i++ {
-            shift := uint(width - i - 1)
-            pixels[4*(width*j + i)] = 255 * (sprite[j] >> shift & 0x1)
-            pixels[4*(width*j + i) + 1] = 255 * (sprite[j] >> shift & 0x1)
-            pixels[4*(width*j + i) + 2] = 255 * (sprite[j] >> shift & 0x1)
-            pixels[4*(width*j + i) + 3] = 255 * (sprite[j] >> shift & 0x1)
-        }
+func (w *SFMLWindow) Draw(x, y uint, drawable []byte) {
+    // Width of the drawable clamped to the right edge of the screen
+    var clampedWidth uint
+    if WindowRight - x < 8 {
+        clampedWidth = WindowRight - x
+    } else {
+        clampedWidth = 8
     }
 
-    image, _ := sf.NewImageFromPixels(uint(width), uint(height), pixels)
-    texture, _ := sf.NewTextureFromImage(image, nil)
-    sp, _ := sf.NewSprite(texture)
+    // Height of the drawable clamped to the bottom edge of the screen
+    var clampedHeight uint
+    if WindowBottom - y < uint(len(drawable)) {
+        clampedHeight = WindowBottom - y
+    } else {
+        clampedHeight = uint(len(drawable))
+    }
 
-    // TODO: scale SFML sprite by width / 64, height / 32
-    // enforce multiples of (64, 32) in cmd
-    w.window.Draw(sp, sf.DefaultRenderStates())
+    // The wrapped coordinates of the bottom right corner of the drawable
+    xw, yw := (x + 8) % WindowRight, (y + uint(len(drawable))) % WindowBottom
+
+    // Top left quadrant of sprite. This is always drawn.
+    sprite1 := w.createSprite(x, y, clampedWidth, clampedHeight, drawable[:clampedHeight])
+    w.window.Draw(sprite1, sf.DefaultRenderStates())
+
+    // Top right quadrant of sprite. If we span the right edge.
+    if x + 8 > WindowRight {
+        sprite2 := w.createSprite(0, y, xw, clampedHeight, drawable[:clampedHeight])
+        w.window.Draw(sprite2, sf.DefaultRenderStates())
+    }
+    // Bottom left quadrant of sprite. If we span the bottom edge.
+    if y + uint(len(drawable)) > WindowBottom {
+        sprite3 := w.createSprite(x, 0, clampedWidth, yw, drawable[clampedHeight:clampedHeight + yw])
+        w.window.Draw(sprite3, sf.DefaultRenderStates())
+    }
+    // Bottom right quadrant of sprite. If we span both the right and bottom edges.
+    if x + 8 > WindowRight && y + uint(len(drawable)) > WindowBottom {
+        sprite4 := w.createSprite(0, 0, xw, yw, drawable[clampedHeight:clampedHeight + yw])
+        w.window.Draw(sprite4, sf.DefaultRenderStates())
+    }
+
     w.window.Display()
 }
 
@@ -57,4 +78,24 @@ func (w *SFMLWindow) ShouldClose() bool {
 
 func (w *SFMLWindow) Release() {
     // Noop
+}
+
+func (w *SFMLWindow) createSprite(x, y, width, height uint, drawable []byte) *sf.Sprite {
+    bitmap := make([]byte, 4 * width * height)
+    for j := uint(0); j < height; j++ {
+        for i := uint(0); i < width; i++ {
+            shift := (drawable[j] >> uint(width - i - 1)) & 0x1
+            bitmap[4*(width*j + i)] = 255 * shift
+            bitmap[4*(width*j + i) + 1] = 255 * shift
+            bitmap[4*(width*j + i) + 2] = 255 * shift
+            bitmap[4*(width*j + i) + 3] = 255 * shift
+        }
+    }
+
+    image, _ := sf.NewImageFromPixels(width, height, bitmap)
+    texture, _ := sf.NewTextureFromImage(image, nil)
+    sprite, _ := sf.NewSprite(texture)
+    sprite.SetPosition(sf.Vector2f{X: w.widthScale * float32(x), Y: w.heightScale * float32(y)})
+    sprite.Scale(sf.Vector2f{X: w.widthScale, Y: w.heightScale})
+    return sprite
 }

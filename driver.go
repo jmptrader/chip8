@@ -10,11 +10,11 @@ func NewDriver(window Window) *Driver {
 }
 
 func (d *Driver) Run() {
-    sprite := []byte{255, 255, 255, 255, 255, 255, 255, 255}
+    drawable := []byte{255, 255, 255, 255, 255, 255, 255, 255}
     window := d.window
     for !window.ShouldClose() {
         window.Update()
-        window.Draw(0, 0, sprite)
+        window.Draw(60, 28, drawable)
         //context.opcode = d.nextOpcode()
         //runOpcode(context)
     }
