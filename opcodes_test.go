@@ -86,7 +86,7 @@ func TestSebSkip(t *testing.T) {
     pc := context.cpu.pc
 
     runOpcode(context)
-    assert.Equal(pc + 2, context.cpu.pc)
+    assert.Equal(pc + 4, context.cpu.pc)
 }
 
 func TestSebNoSkip(t *testing.T) {
@@ -98,7 +98,7 @@ func TestSebNoSkip(t *testing.T) {
     pc := context.cpu.pc
 
     runOpcode(context)
-    assert.Equal(pc + 1, context.cpu.pc)
+    assert.Equal(pc + 2, context.cpu.pc)
 }
 
 func TestSnebSkip(t *testing.T) {
@@ -110,7 +110,7 @@ func TestSnebSkip(t *testing.T) {
     pc := context.cpu.pc
 
     runOpcode(context)
-    assert.Equal(pc + 2, context.cpu.pc)
+    assert.Equal(pc + 4, context.cpu.pc)
 }
 
 func TestSnebNoSkip(t *testing.T) {
@@ -123,7 +123,7 @@ func TestSnebNoSkip(t *testing.T) {
     pc := context.cpu.pc
 
     runOpcode(context)
-    assert.Equal(pc + 1, context.cpu.pc)
+    assert.Equal(pc + 2, context.cpu.pc)
 }
 
 func TestSeSkip(t *testing.T) {
@@ -136,7 +136,7 @@ func TestSeSkip(t *testing.T) {
     pc := context.cpu.pc
 
     runOpcode(context)
-    assert.Equal(pc + 2, context.cpu.pc)
+    assert.Equal(pc + 4, context.cpu.pc)
 }
 
 func TestSeNoSkip(t *testing.T) {
@@ -149,7 +149,7 @@ func TestSeNoSkip(t *testing.T) {
     pc := context.cpu.pc
 
     runOpcode(context)
-    assert.Equal(pc + 1, context.cpu.pc)
+    assert.Equal(pc + 2, context.cpu.pc)
 }
 
 func TestMv(t *testing.T) {
@@ -162,7 +162,7 @@ func TestMv(t *testing.T) {
 
     runOpcode(context)
     assert.Equal(context.cpu.v[2], context.cpu.v[1])
-    assert.Equal(pc + 1, context.cpu.pc)
+    assert.Equal(pc + 2, context.cpu.pc)
 }
 
 func TestOr(t *testing.T) {
@@ -176,7 +176,7 @@ func TestOr(t *testing.T) {
 
     runOpcode(context)
     assert.Equal(0x11, int(context.cpu.v[1]))
-    assert.Equal(pc + 1, context.cpu.pc)
+    assert.Equal(pc + 2, context.cpu.pc)
 }
 
 func TestAnd(t *testing.T) {
@@ -190,7 +190,7 @@ func TestAnd(t *testing.T) {
 
     runOpcode(context)
     assert.Equal(0x10, int(context.cpu.v[1]))
-    assert.Equal(pc + 1, context.cpu.pc)
+    assert.Equal(pc + 2, context.cpu.pc)
 }
 
 func TestXor(t *testing.T) {
@@ -204,7 +204,7 @@ func TestXor(t *testing.T) {
 
     runOpcode(context)
     assert.Equal(0x01, int(context.cpu.v[1]))
-    assert.Equal(pc + 1, context.cpu.pc)
+    assert.Equal(pc + 2, context.cpu.pc)
 }
 
 func TestAddNoCarry(t *testing.T) {
@@ -220,7 +220,7 @@ func TestAddNoCarry(t *testing.T) {
     runOpcode(context)
     assert.Equal(5, int(context.cpu.v[1]))
     assert.Equal(0, int(context.cpu.v[0xF])) // No carry
-    assert.Equal(pc + 1, context.cpu.pc)
+    assert.Equal(pc + 2, context.cpu.pc)
 }
 
 func TestAddCarry(t *testing.T) {
@@ -236,7 +236,7 @@ func TestAddCarry(t *testing.T) {
     runOpcode(context)
     assert.Equal(4, int(context.cpu.v[1]))
     assert.Equal(1, int(context.cpu.v[0xF])) // Carry
-    assert.Equal(pc + 1, context.cpu.pc)
+    assert.Equal(pc + 2, context.cpu.pc)
 }
 
 func TestSubBorrow(t *testing.T) {
@@ -252,7 +252,7 @@ func TestSubBorrow(t *testing.T) {
     runOpcode(context)
     assert.Equal(254, int(context.cpu.v[1]))
     assert.Equal(0, int(context.cpu.v[0xF])) // Borrow
-    assert.Equal(pc + 1, context.cpu.pc)
+    assert.Equal(pc + 2, context.cpu.pc)
 }
 
 func TestSubNoBorrow(t *testing.T) {
@@ -268,7 +268,7 @@ func TestSubNoBorrow(t *testing.T) {
     runOpcode(context)
     assert.Equal(2, int(context.cpu.v[1]))
     assert.Equal(1, int(context.cpu.v[0xF])) // No borrow
-    assert.Equal(pc + 1, context.cpu.pc)
+    assert.Equal(pc + 2, context.cpu.pc)
 }
 
 func TestShrLSB1(t *testing.T) {
@@ -283,7 +283,7 @@ func TestShrLSB1(t *testing.T) {
     runOpcode(context)
     assert.Equal(2, int(context.cpu.v[1]))
     assert.Equal(1, int(context.cpu.v[0xF]))
-    assert.Equal(pc + 1, context.cpu.pc)
+    assert.Equal(pc + 2, context.cpu.pc)
 }
 
 func TestShrLSB0(t *testing.T) {
@@ -298,7 +298,7 @@ func TestShrLSB0(t *testing.T) {
     runOpcode(context)
     assert.Equal(3, int(context.cpu.v[1]))
     assert.Equal(0, int(context.cpu.v[0xF]))
-    assert.Equal(pc + 1, context.cpu.pc)
+    assert.Equal(pc + 2, context.cpu.pc)
 }
 
 func TestStBCD(t *testing.T) {
@@ -314,7 +314,7 @@ func TestStBCD(t *testing.T) {
     assert.Equal(1, int(context.memory[100]))
     assert.Equal(2, int(context.memory[101]))
     assert.Equal(3, int(context.memory[102]))
-    assert.Equal(pc + 1, context.cpu.pc)
+    assert.Equal(pc + 2, context.cpu.pc)
 }
 
 func TestSt(t *testing.T) {
@@ -332,7 +332,7 @@ func TestSt(t *testing.T) {
     assert.Equal(1, int(context.memory[100]))
     assert.Equal(2, int(context.memory[101]))
     assert.Equal(3, int(context.memory[102]))
-    assert.Equal(pc + 1, context.cpu.pc)
+    assert.Equal(pc + 2, context.cpu.pc)
 }
 
 func TestLd(t *testing.T) {
@@ -350,7 +350,7 @@ func TestLd(t *testing.T) {
     assert.Equal(1, int(context.cpu.v[0]))
     assert.Equal(2, int(context.cpu.v[1]))
     assert.Equal(3, int(context.cpu.v[2]))
-    assert.Equal(pc + 1, context.cpu.pc)
+    assert.Equal(pc + 2, context.cpu.pc)
 }
 
 func TestDrw(t *testing.T) {
@@ -387,7 +387,7 @@ func TestDrw(t *testing.T) {
     assert.Equal([]byte{84, 87, 86}, window.drawable)
     // VF = 1 since pixels were flipped
     assert.Equal(byte(1), context.cpu.v[0xF])
-    assert.Equal(pc + 1, context.cpu.pc)
+    assert.Equal(pc + 2, context.cpu.pc)
 }
 
 func TestCls(t *testing.T) {
@@ -400,5 +400,5 @@ func TestCls(t *testing.T) {
 
     runOpcode(context)
     assert.True(window.wasCleared)
-    assert.Equal(pc + 1, context.cpu.pc)
+    assert.Equal(pc + 2, context.cpu.pc)
 }

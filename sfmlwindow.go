@@ -67,39 +67,39 @@ func (w *SFMLWindow) WaitForKeyPress() HexKey {
 func (w *SFMLWindow) Draw(x, y uint, drawable []byte) {
     // Width of the drawable clamped to the right edge of the screen
     var clampedWidth uint
-    if WindowRight - x < 8 {
-        clampedWidth = WindowRight - x
+    if windowRight - x < 8 {
+        clampedWidth = windowRight - x
     } else {
         clampedWidth = 8
     }
 
     // Height of the drawable clamped to the bottom edge of the screen
     var clampedHeight uint
-    if WindowBottom - y < uint(len(drawable)) {
-        clampedHeight = WindowBottom - y
+    if windowBottom - y < uint(len(drawable)) {
+        clampedHeight = windowBottom - y
     } else {
         clampedHeight = uint(len(drawable))
     }
 
     // The wrapped coordinates of the bottom right corner of the drawable
-    xw, yw := (x + 8) % WindowRight, (y + uint(len(drawable))) % WindowBottom
+    xw, yw := (x + 8) % windowRight, (y + uint(len(drawable))) % windowBottom
 
     // Top left quadrant of sprite. This is always drawn.
     sprite1 := w.createSprite(x, y, clampedWidth, clampedHeight, drawable[:clampedHeight])
     w.window.Draw(sprite1, sf.DefaultRenderStates())
 
     // Top right quadrant of sprite. If we span the right edge.
-    if x + 8 > WindowRight {
+    if x + 8 > windowRight {
         sprite2 := w.createSprite(0, y, xw, clampedHeight, drawable[:clampedHeight])
         w.window.Draw(sprite2, sf.DefaultRenderStates())
     }
     // Bottom left quadrant of sprite. If we span the bottom edge.
-    if y + uint(len(drawable)) > WindowBottom {
+    if y + uint(len(drawable)) > windowBottom {
         sprite3 := w.createSprite(x, 0, clampedWidth, yw, drawable[clampedHeight:clampedHeight + yw])
         w.window.Draw(sprite3, sf.DefaultRenderStates())
     }
     // Bottom right quadrant of sprite. If we span both the right and bottom edges.
-    if x + 8 > WindowRight && y + uint(len(drawable)) > WindowBottom {
+    if x + 8 > windowRight && y + uint(len(drawable)) > windowBottom {
         sprite4 := w.createSprite(0, 0, xw, yw, drawable[clampedHeight:clampedHeight + yw])
         w.window.Draw(sprite4, sf.DefaultRenderStates())
     }

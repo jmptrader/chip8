@@ -1,7 +1,7 @@
 package chip8
 
-const WindowRight uint = 64
-const WindowBottom uint = 32
+const windowRight uint = 64
+const windowBottom uint = 32
 
 type HexKey byte
 

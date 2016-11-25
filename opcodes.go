@@ -30,7 +30,7 @@ func ops0(context *Context) {
 // Clear the display
 func cls(context *Context) {
     context.window.Clear()
-    context.cpu.pc++
+    context.cpu.pc += 2
 }
 
 // 00EE - RET
@@ -60,9 +60,9 @@ func seb(context *Context) {
     x := context.opcode & 0x0F00 >> 8
     b := byte(context.opcode & 0xFF)
     if context.cpu.v[x] == b {
-        context.cpu.pc++
+        context.cpu.pc += 2
     }
-    context.cpu.pc++
+    context.cpu.pc += 2
 }
 
 // 4xkk - SNE Vx, byte
@@ -71,9 +71,9 @@ func sneb(context *Context) {
     x := context.opcode & 0x0F00 >> 8
     b := byte(context.opcode & 0xFF)
     if context.cpu.v[x] != b {
-        context.cpu.pc++
+        context.cpu.pc += 2
     }
-    context.cpu.pc++
+    context.cpu.pc += 2
 }
 
 // 5xy0 - SE Vx, Vy
@@ -82,9 +82,9 @@ func se(context *Context) {
     x := context.opcode & 0x0F00 >> 8
     y := context.opcode & 0x00F0 >> 4
     if context.cpu.v[x] == context.cpu.v[y] {
-        context.cpu.pc++
+        context.cpu.pc += 2
     }
-    context.cpu.pc++
+    context.cpu.pc += 2
 }
 
 // 6xkk - LD Vx, byte
@@ -93,7 +93,7 @@ func ldb(context *Context) {
     x := context.opcode & 0x0F00 >> 8
     b := byte(context.opcode & 0x00FF)
     context.cpu.v[x] = b
-    context.cpu.pc++
+    context.cpu.pc += 2
 }
 
 // 7xkk - ADD Vx, byte
@@ -102,7 +102,7 @@ func addb(context *Context) {
     x := context.opcode & 0x0F00 >> 8
     b := byte(context.opcode & 0x00FF)
     context.cpu.v[x] += b
-    context.cpu.pc++
+    context.cpu.pc += 2
 }
 
 // 8xxx opcodes
@@ -129,7 +129,7 @@ func ops8(context *Context) {
     default:
         panic(fmt.Sprintf("Unrecognized opcode %v!", context.opcode))
     }
-    context.cpu.pc++
+    context.cpu.pc += 2
 }
 
 // 8xy0 - MV Vx, Vy
@@ -234,9 +234,9 @@ func sne(context *Context) {
     x := context.opcode & 0x0F00 >> 8
     y := context.opcode & 0x00F0 >> 4
     if context.cpu.v[x] != context.cpu.v[y] {
-        context.cpu.pc++
+        context.cpu.pc += 2
     }
-    context.cpu.pc++
+    context.cpu.pc += 2
 }
 
 // Annn - LD I, nibble
@@ -244,7 +244,7 @@ func sne(context *Context) {
 func ldn(context *Context) {
     n := context.opcode & 0x0FFF
     context.cpu.i = n
-    context.cpu.pc++
+    context.cpu.pc += 2
 }
 
 // Bnnn - JP V0, nibble
@@ -260,7 +260,7 @@ func rnd(context *Context) {
     x := context.opcode & 0x0F00 >> 8
     b := byte(context.opcode & 0xFF)
     context.cpu.v[x] = b & byte(rand.Intn(256))
-    context.cpu.pc++
+    context.cpu.pc += 2
 }
 
 // Dxyn - DRW Vx, Vy, nibble
@@ -288,7 +288,7 @@ func drw(context *Context) {
     }
 
     context.window.Draw(uint(vx), uint(vy), drawable)
-    context.cpu.pc++
+    context.cpu.pc += 2
 }
 
 func opse(context *Context) {
@@ -308,9 +308,8 @@ func skp(context *Context) {
     x := context.opcode & 0x0F00 >> 8
     if context.window.IsKeyPressed(HexKey(context.cpu.v[x])) {
         context.cpu.pc += 2
-    } else {
-        context.cpu.pc++
     }
+    context.cpu.pc += 2
 }
 
 // ExA1 - SKNP Vx
@@ -319,15 +318,14 @@ func sknp(context *Context) {
     x := context.opcode & 0x0F00 >> 8
     if !context.window.IsKeyPressed(HexKey(context.cpu.v[x])) {
         context.cpu.pc += 2
-    } else {
-        context.cpu.pc++
     }
+    context.cpu.pc += 2
 }
 
 func opsf(context *Context) {
     switch context.opcode & 0x00FF {
     case 0x07:
-        dtmv(context)
+        stdt(context)
     case 0x0A:
         ldk(context)
     case 0x15:
@@ -347,13 +345,12 @@ func opsf(context *Context) {
     default:
         panic(fmt.Sprintf("Unrecognized opcode %v!", context.opcode))
     }
-    context.cpu.pc++
+    context.cpu.pc += 2
 }
 
-// Fx07 - MV Vx, DT
+// Fx07 - ST Vx, DT
 // Set Vx = delay timer value
-// TODO: come up with a better name
-func dtmv(context *Context) {
+func stdt(context *Context) {
     x := context.opcode & 0x0F00 >> 8
     context.cpu.v[x] = context.cpu.dt
 }
