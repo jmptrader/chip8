@@ -6,8 +6,7 @@ import (
 )
 
 type TestWindow struct {
-    x, y       uint
-    drawable   []byte
+    screen     [64][32]byte
     wasCleared bool
 }
 
@@ -23,9 +22,8 @@ func (w *TestWindow) WaitForKeyPress() HexKey {
     return 0x0
 }
 
-func (w *TestWindow) Draw(x, y uint, drawable []byte) {
-    w.x, w.y = x, y
-    w.drawable = drawable
+func (w *TestWindow) Draw(screen *[64][32]byte) {
+    w.screen = *screen
 }
 
 func (w *TestWindow) Clear() {
@@ -353,7 +351,7 @@ func TestLd(t *testing.T) {
     assert.Equal(pc + 2, context.cpu.pc)
 }
 
-func TestDrw(t *testing.T) {
+func TestDrwCollision(t *testing.T) {
     assert := assert.New(t)
 
     window := new(TestWindow)
@@ -378,13 +376,23 @@ func TestDrw(t *testing.T) {
     pc := context.cpu.pc
 
     runOpcode(context)
-    assert.Equal(uint(x), window.x)
-    assert.Equal(uint(y), window.y)
-    // screen   ^ drawable -> draw
-    // 01010101 ^ 00000001 -> 01010100 (84)
-    // 01010101 ^ 00000010 -> 01010111 (87)
-    // 01010101 ^ 00000011 -> 01010110 (86)
-    assert.Equal([]byte{84, 87, 86}, window.drawable)
+
+    // screen   ^ sprite   -> draw
+    // 01010101 ^ 00000001 -> 01010100
+    // 01010101 ^ 00000010 -> 01010111
+    // 01010101 ^ 00000011 -> 01010110
+    expected := [][]byte {
+        {0, 1, 0, 1, 0, 1, 0, 0,},
+        {0, 1, 0, 1, 0, 1, 1, 1,},
+        {0, 1, 0, 1, 0, 1, 1, 0,},
+    }
+    for j := 0; j < 3; j++ {
+        actual := [8]byte{}
+        for i := 0; i < 8; i++ {
+            actual[i] = context.screen[x + i][y + j]
+        }
+        assert.Equal(expected[j], actual[:])
+    }
     // VF = 1 since pixels were flipped
     assert.Equal(byte(1), context.cpu.v[0xF])
     assert.Equal(pc + 2, context.cpu.pc)

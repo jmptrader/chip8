@@ -4,11 +4,10 @@ import (
     "time"
 )
 
-// Tick at approximately 60 fps
-const tick = 16
+// Update approximately 60 times a second
+const msPerTick = 16
 
 type Driver struct {
-    window  Window
     context *Context
 }
 
@@ -32,29 +31,26 @@ func NewDriver(window Window) *Driver {
         0xF0, 0x80, 0xF0, 0x80, 0x80, // F
     }
     context := newContext(newCPU(), window, memory)
-    return &Driver{window: window, context: context}
+    return &Driver{context: context}
 }
 
 func (d *Driver) Run() {
-    drawable := []byte{255, 255, 255, 255, 255, 255, 255, 255}
-    window := d.window
-
+    window := d.context.window
     prev := time.Now().Nanosecond() / 1000000
-    accum := 0
+    delay := 0
 
     for !window.ShouldClose() {
         now := time.Now().Nanosecond() / 1000000
-        accum += now - prev
+        delay += now - prev
         prev = now
 
         window.Update()
 
-        // Processing opcodes and updating timers happens each tick
-        for accum >= tick {
-            window.Draw(60, 28, drawable)
+        // Processing opcodes and updating timers happen each tick
+        for delay >= msPerTick {
             d.updateTimers()
             //runNextOpcode(context)
-            accum -= tick
+            delay -= msPerTick
         }
     }
 }
@@ -68,9 +64,9 @@ func (d *Driver) updateTimers() {
     }
 }
 
-func (d *Driver) runNextOpcode() uint16 {
+func (d *Driver) runNextOpcode() {
     memory := d.context.memory
     cpu := d.context.cpu
-    opcode := uint16(memory[cpu.pc]) << 8 | uint16(memory[cpu.pc + 1])
-    runOpcode(opcode)
+    d.context.opcode = uint16(memory[cpu.pc]) << 8 | uint16(memory[cpu.pc + 1])
+    runOpcode(d.context)
 }

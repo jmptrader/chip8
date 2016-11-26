@@ -264,30 +264,31 @@ func rnd(context *Context) {
 }
 
 // Dxyn - DRW Vx, Vy, nibble
-// Display n-byte drawable starting at memory location I at (Vx, Vy), set VF = collision
+// Display n-byte sprite starting at memory location I at (Vx, Vy), set VF = collision
 func drw(context *Context) {
     x := context.opcode & 0x0F00 >> 8
     y := context.opcode & 0x00F0 >> 4
     n := context.opcode & 0x000F
     vx, vy := int(context.cpu.v[x]), int(context.cpu.v[y])
 
-    drawable := make([]byte, n)
-    copy(drawable, context.memory[context.cpu.i:context.cpu.i + n])
+    sprite := context.memory[context.cpu.i:context.cpu.i + n]
 
-    // Replace raw drawable with xor of screen and drawable
+    // Xor screen with sprite
     // Clear VF and set to 1 if there is any pixel collision
     context.cpu.v[0xF] = 0
-    for j := 0; j < len(drawable); j++ {
+    for j := 0; j < len(sprite); j++ {
         for i := 0; i < 8; i++ {
             shift := uint(8 - i - 1)
-            pixel := context.screen[(vx + i) % 64][(vy + j) % 32] ^ (drawable[j] >> shift) & 0x1
+            pixel := context.screen[(vx + i) % 64][(vy + j) % 32] ^ (sprite[j] >> shift) & 0x1
             context.screen[(vx + i) % 64][(vy + j) % 32] = pixel
-            drawable[j] = pixel << shift | drawable[j] & (255 - (1 << shift))
             context.cpu.v[0xF] |= pixel
         }
     }
 
-    context.window.Draw(uint(vx), uint(vy), drawable)
+    if context.cpu.v[0xF] > 0 {
+        context.window.Clear()
+        context.window.Draw(&context.screen)
+    }
     context.cpu.pc += 2
 }
 
@@ -385,7 +386,7 @@ func addi(context *Context) {
 }
 
 // Fx29 - LD F, Vx
-// Set I = location of drawable for digit Vx
+// Set I = location of sprite for digit Vx
 func ldf(context *Context) {
     x := context.opcode & 0x0F00 >> 8
     context.cpu.i += uint16(context.cpu.v[x])
