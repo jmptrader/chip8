@@ -389,7 +389,7 @@ func addi(context *Context) {
 // Set I = location of sprite for digit Vx
 func ldf(context *Context) {
     x := context.opcode & 0x0F00 >> 8
-    context.cpu.i += uint16(context.cpu.v[x])
+    context.cpu.i = 5 * uint16(context.cpu.v[x])
 }
 
 // Fx33 - LD B, Vx
