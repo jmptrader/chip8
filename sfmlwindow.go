@@ -5,10 +5,10 @@ import (
 )
 
 type SFMLWindow struct {
-    window                  *sf.RenderWindow
-    widthScale, heightScale float32
-    bitmap                  [4 * 64 * 32]byte
-    keys                    map[HexKey]sf.KeyCode
+    window *sf.RenderWindow
+    scale  sf.Vector2f
+    bitmap [4 * 64 * 32]byte
+    keys   map[HexKey]sf.KeyCode
 }
 
 func NewSFMLWindow(width, height uint) *SFMLWindow {
@@ -35,7 +35,7 @@ func NewSFMLWindow(width, height uint) *SFMLWindow {
         0xF: sf.KeyV,
     }
 
-    return &SFMLWindow{window: window, widthScale: float32(width / 64), heightScale: float32(height / 32),
+    return &SFMLWindow{window: window, scale: sf.Vector2f{float32(width / 64), float32(height / 32)},
                        bitmap: bitmap, keys: keys}
 }
 
@@ -80,7 +80,7 @@ func (w *SFMLWindow) Draw(screen *[64][32]byte) {
     image, _ := sf.NewImageFromPixels(64, 32, w.bitmap[:])
     texture, _ := sf.NewTextureFromImage(image, nil)
     sprite, _ := sf.NewSprite(texture)
-    sprite.Scale(sf.Vector2f{X: w.widthScale, Y: w.heightScale})
+    sprite.Scale(w.scale)
 
     w.window.Draw(sprite, sf.DefaultRenderStates())
     w.window.Display()
