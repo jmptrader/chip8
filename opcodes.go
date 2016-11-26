@@ -1,8 +1,9 @@
 package chip8
 
 import (
-    "math/rand"
     "fmt"
+    "math/rand"
+    "time"
 )
 
 type Opcode func(*Context)
@@ -367,7 +368,10 @@ func mvdt(context *Context) {
 // Wait for a key press, store the value of the key in Vx
 func ldk(context *Context) {
     x := context.opcode & 0x0F00 >> 8
+    before := time.Now()
     key := context.window.WaitForKeyPress()
+    // Don't count blocking time against delay
+    context.cpu.delay -= time.Since(before).Nanoseconds() / 1000000
     context.cpu.v[x] = byte(key)
 }
 
@@ -392,7 +396,7 @@ func ldf(context *Context) {
     context.cpu.i = 5 * uint16(context.cpu.v[x])
 }
 
-// Fx33 - LD B, Vx
+// Fx33 - ST B, Vx
 // Store BCD representation of Vx in memory locations I, I+1, and I+2
 func stbcd(context *Context) {
     x := context.opcode & 0x0F00 >> 8

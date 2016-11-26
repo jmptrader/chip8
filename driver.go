@@ -36,21 +36,21 @@ func NewDriver(window Window) *Driver {
 
 func (d *Driver) Run() {
     window := d.context.window
-    prev := time.Now().Nanosecond() / 1000000
-    delay := 0
+    prev := time.Now().UnixNano() / 1000000
+    d.context.cpu.delay = 0
 
     for !window.ShouldClose() {
-        now := time.Now().Nanosecond() / 1000000
-        delay += now - prev
+        now := time.Now().UnixNano() / 1000000
+        d.context.cpu.delay += now - prev
         prev = now
 
         window.Update()
 
         // Processing opcodes and updating timers happen each tick
-        for delay >= msPerTick {
+        for d.context.cpu.delay >= msPerTick {
             d.updateTimers()
             //runNextOpcode(context)
-            delay -= msPerTick
+            d.context.cpu.delay -= msPerTick
         }
     }
 }
