@@ -70,10 +70,9 @@ func (w *SFMLWindow) WaitForKeyPress() HexKey {
 func (w *SFMLWindow) Draw(screen *[64][32]byte) {
     for j := uint(0); j < 32; j++ {
         for i := uint(0); i < 64; i++ {
-            w.bitmap[4*(64*j + i)] = 255 * screen[i][j]
-            w.bitmap[4*(64*j + i) + 1] = 255 * screen[i][j]
-            w.bitmap[4*(64*j + i) + 2] = 255 * screen[i][j]
-            w.bitmap[4*(64*j + i) + 3] = 255 * screen[i][j]
+            for k := uint(0); k < 4; k++ {
+                w.bitmap[4 * (64 * j + i) + k] = 255 * screen[i][j]
+            }
         }
     }
 
