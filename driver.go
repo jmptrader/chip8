@@ -1,6 +1,7 @@
 package chip8
 
 import (
+    "io/ioutil"
     "time"
 )
 
@@ -11,7 +12,7 @@ type Driver struct {
     context *Context
 }
 
-func NewDriver(window Window) *Driver {
+func NewDriver(window Window, romPath string) *Driver {
     memory := [4096]byte {
         0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
         0x20, 0x60, 0x20, 0x20, 0x70, // 1
@@ -30,6 +31,18 @@ func NewDriver(window Window) *Driver {
         0xF0, 0x80, 0xF0, 0x80, 0xF0, // E
         0xF0, 0x80, 0xF0, 0x80, 0x80, // F
     }
+
+    rom, err := ioutil.ReadFile(romPath)
+    if err != nil {
+        panic("Could not read ROM: " + err.Error())
+    }
+
+    // Max acceptable size of ROM is 4096 - 512 bytes
+    if len(rom) > 3584 {
+        panic("ROM image exceeds maximum size of 3584 bytes")
+    }
+    copy(memory[0x200:], rom)
+
     context := newContext(newCPU(), window, memory)
     return &Driver{context: context}
 }
@@ -49,7 +62,7 @@ func (d *Driver) Run() {
         // Processing opcodes and updating timers happen each tick
         for d.context.cpu.delay >= msPerTick {
             d.updateTimers()
-            //runNextOpcode(context)
+            d.runNextOpcode()
             d.context.cpu.delay -= msPerTick
         }
     }

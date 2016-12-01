@@ -410,3 +410,7 @@ func TestCls(t *testing.T) {
     assert.True(window.wasCleared)
     assert.Equal(pc + 2, context.cpu.pc)
 }
+
+func TestLdk(t *testing.T) {
+    // Assert delay does not count time blocking for input
+}

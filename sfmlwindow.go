@@ -53,7 +53,7 @@ func (w *SFMLWindow) IsKeyPressed(key HexKey) bool {
 }
 
 func (w *SFMLWindow) WaitForKeyPress() HexKey {
-    for {
+    for !w.ShouldClose() {
         event := w.window.WaitEvent()
         switch ev := event.(type) {
         case sf.EventKeyPressed:
@@ -63,8 +63,12 @@ func (w *SFMLWindow) WaitForKeyPress() HexKey {
                     return k
                 }
             }
+        case sf.EventClosed:
+            w.window.Close()
         }
     }
+    // Dummy return value. Program will exit.
+    return 0xFF
 }
 
 func (w *SFMLWindow) Draw(screen *[64][32]byte) {
@@ -86,7 +90,7 @@ func (w *SFMLWindow) Draw(screen *[64][32]byte) {
 }
 
 func (w *SFMLWindow) Clear() {
-    w.window.Clear(sf.Color{0, 0, 0, 255})
+    w.window.Clear(sf.ColorBlack())
 }
 
 func (w *SFMLWindow) ShouldClose() bool {
