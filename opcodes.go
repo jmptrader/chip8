@@ -30,6 +30,11 @@ func ops0(context *Context) {
 // 00E0 - CLS
 // Clear the display
 func cls(context *Context) {
+    for i := range(context.screen) {
+        for j := range context.screen[i] {
+            context.screen[i][j] = 0
+        }
+    }
     context.window.Clear()
     context.cpu.pc += 2
 }

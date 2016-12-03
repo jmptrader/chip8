@@ -6,8 +6,7 @@ import (
 )
 
 type TestWindow struct {
-    screen     [64][32]byte
-    wasCleared bool
+    screen [64][32]byte
 }
 
 func (w *TestWindow) Update() {
@@ -27,7 +26,7 @@ func (w *TestWindow) Draw(screen *[64][32]byte) {
 }
 
 func (w *TestWindow) Clear() {
-    w.wasCleared = true
+    // Noop
 }
 
 func (w *TestWindow) ShouldClose() bool {
@@ -403,11 +402,16 @@ func TestCls(t *testing.T) {
 
     window := new(TestWindow)
     context := newContext(newCPU(), window, [4096]byte{})
+    for i := range context.screen {
+        for j := range context.screen[i] {
+            context.screen[i][j] = 1
+        }
+    }
     context.opcode = 0x00E0
     pc := context.cpu.pc
 
     runOpcode(context)
-    assert.True(window.wasCleared)
+    assert.Equal([64][32]byte{}, context.screen)
     assert.Equal(pc + 2, context.cpu.pc)
 }
 
