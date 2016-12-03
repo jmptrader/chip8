@@ -18,7 +18,7 @@ func (w *TestWindow) IsKeyPressed(key HexKey) bool {
 }
 
 func (w *TestWindow) WaitForKeyPress() HexKey {
-    return 0x0
+    return 0xA
 }
 
 func (w *TestWindow) Draw(screen *[64][32]byte) {
@@ -416,5 +416,15 @@ func TestCls(t *testing.T) {
 }
 
 func TestLdk(t *testing.T) {
-    // Assert delay does not count time blocking for input
+    assert := assert.New(t)
+
+    window := new(TestWindow)
+    context := newContext(newCPU(), window, [4096]byte{})
+
+    context.opcode = 0xF50A
+    pc := context.cpu.pc
+
+    runOpcode(context)
+    assert.Equal(uint8(0xA), context.cpu.v[5])
+    assert.Equal(pc + 2, context.cpu.pc)
 }
