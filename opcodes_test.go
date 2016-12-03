@@ -428,3 +428,18 @@ func TestLdk(t *testing.T) {
     assert.Equal(uint8(0xA), context.cpu.v[5])
     assert.Equal(pc + 2, context.cpu.pc)
 }
+
+func TestLdf(t *testing.T) {
+    assert := assert.New(t)
+
+    window := new(TestWindow)
+    context := newContext(newCPU(), window, [4096]byte{})
+
+    context.cpu.v[5] = 0xA
+    context.opcode = 0xF529
+    pc := context.cpu.pc
+
+    runOpcode(context)
+    assert.Equal(uint16(50), context.cpu.i)
+    assert.Equal(pc + 2, context.cpu.pc)
+}
