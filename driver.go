@@ -13,6 +13,7 @@ type Driver struct {
 }
 
 func NewDriver(window Window, romPath string) *Driver {
+    // Initialize memory with font sprites
     memory := [4096]byte {
         0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
         0x20, 0x60, 0x20, 0x20, 0x70, // 1

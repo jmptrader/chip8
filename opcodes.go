@@ -292,7 +292,6 @@ func drw(context *Context) {
     }
 
     if context.cpu.v[0xF] > 0 {
-        context.window.Clear()
         context.window.Draw(&context.screen)
     }
     context.cpu.pc += 2

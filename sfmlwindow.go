@@ -91,6 +91,7 @@ func (w *SFMLWindow) Draw(screen *[64][32]byte) {
 
 func (w *SFMLWindow) Clear() {
     w.window.Clear(sf.ColorBlack())
+    w.window.Display()
 }
 
 func (w *SFMLWindow) ShouldClose() bool {
